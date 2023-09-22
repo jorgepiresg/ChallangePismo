@@ -1,0 +1,117 @@
+basePath: api/v1
+definitions:
+  modelAccounts.Account:
+    properties:
+      account_id:
+        type: string
+      document_number:
+        type: string
+    type: object
+  modelAccounts.Create:
+    properties:
+      document_number:
+        type: string
+    type: object
+  modelAccounts.CreateResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  modelTransactions.MakeTransaction:
+    properties:
+      account_id:
+        type: string
+      amount:
+        type: number
+      operation_type_id:
+        type: integer
+    type: object
+  utils.Error:
+    properties:
+      message:
+        type: string
+    type: object
+host: localhost:8080/
+info:
+  contact:
+    email: jorgewpgomes@gmail.com
+    name: Jorge Pires
+  title: Challange Pismo
+  version: "1.0"
+paths:
+  /accounts:
+    post:
+      consumes:
+      - application/json
+      description: create a account
+      parameters:
+      - description: input
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/modelAccounts.Create'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/modelAccounts.CreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: Account create
+      tags:
+      - Account
+  /accounts/{account_id}:
+    get:
+      consumes:
+      - application/json
+      description: get account by id
+      parameters:
+      - description: Account ID
+        in: path
+        name: account_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/modelAccounts.Account'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: Account
+      tags:
+      - Account
+  /transactions:
+    post:
+      consumes:
+      - application/json
+      description: make a transaction from an account.
+      parameters:
+      - description: input
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/modelTransactions.MakeTransaction'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: Make transaction
+      tags:
+      - Transactions
+swagger: "2.0"
