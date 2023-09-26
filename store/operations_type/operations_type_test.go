@@ -41,7 +41,7 @@ func TestGetByID(t *testing.T) {
 					OperationTypeID: 1,
 					Description:     "COMPRA A VISTA",
 					Operation:       -1,
-				}), time.Minute).SetVal("")
+				}), 6*time.Hour).SetVal("")
 			},
 			expected: modelOperaTionsType.OperationType{
 				OperationTypeID: 1,
@@ -64,7 +64,7 @@ func TestGetByID(t *testing.T) {
 					OperationTypeID: 1,
 					Description:     "COMPRA A VISTA",
 					Operation:       -1,
-				}), time.Minute).SetErr(fmt.Errorf("any"))
+				}), 6*time.Hour).SetErr(fmt.Errorf("any"))
 			},
 			expected: modelOperaTionsType.OperationType{
 				OperationTypeID: 1,
@@ -87,7 +87,7 @@ func TestGetByID(t *testing.T) {
 					OperationTypeID: 1,
 					Description:     "COMPRA A VISTA",
 					Operation:       -1,
-				}), time.Minute).SetVal("")
+				}), 6*time.Hour).SetVal("")
 			},
 			expected: modelOperaTionsType.OperationType{
 				OperationTypeID: 1,

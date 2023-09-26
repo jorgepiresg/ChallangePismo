@@ -65,7 +65,7 @@ func (ot operationsType) GetByID(ctx context.Context, ID int) (modelOperaTionsTy
 }
 
 func (ot operationsType) setCache(ctx context.Context, key string, operationType modelOperaTionsType.OperationType) {
-	err := ot.cache.Set(ctx, key, utils.ToJSON(operationType), time.Minute).Err()
+	err := ot.cache.Set(ctx, key, utils.ToJSON(operationType), 6*time.Hour).Err()
 	if err != nil {
 		ot.log.WithField("cache_key", key).Warning(err)
 	}

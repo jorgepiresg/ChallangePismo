@@ -112,7 +112,7 @@ func (a accounts) GetByDocument(ctx context.Context, document string) (modelAcco
 
 func (a accounts) setCache(ctx context.Context, key string, account modelAccounts.Account) {
 
-	err := a.cache.Set(ctx, key, utils.ToJSON(account), time.Minute).Err()
+	err := a.cache.Set(ctx, key, utils.ToJSON(account), 10*time.Minute).Err()
 	if err != nil {
 		a.log.WithField("cache_key", key).Warning(err)
 	}

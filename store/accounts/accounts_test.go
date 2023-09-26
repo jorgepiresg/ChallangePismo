@@ -117,7 +117,7 @@ func TestGetByID(t *testing.T) {
 				f.redis.ExpectSet("account_id_id", utils.ToJSON(modelAccounts.Account{
 					ID:             "id",
 					DocumentNumber: "11111111111",
-				}), time.Minute).SetVal("")
+				}), 10*time.Minute).SetVal("")
 
 			},
 			expected: modelAccounts.Account{
@@ -139,7 +139,7 @@ func TestGetByID(t *testing.T) {
 				f.redis.ExpectSet("account_id_id", utils.ToJSON(modelAccounts.Account{
 					ID:             "id",
 					DocumentNumber: "11111111111",
-				}), time.Minute).SetErr(fmt.Errorf("any"))
+				}), 10*time.Minute).SetErr(fmt.Errorf("any"))
 
 			},
 			expected: modelAccounts.Account{
@@ -161,7 +161,7 @@ func TestGetByID(t *testing.T) {
 				f.redis.ExpectSet("account_id_id", utils.ToJSON(modelAccounts.Account{
 					ID:             "id",
 					DocumentNumber: "11111111111",
-				}), time.Minute).SetErr(fmt.Errorf("any"))
+				}), 10*time.Minute).SetErr(fmt.Errorf("any"))
 
 			},
 			expected: modelAccounts.Account{
@@ -254,7 +254,7 @@ func TestGetByDocument(t *testing.T) {
 				f.redis.ExpectSet("account_document_11111111111", utils.ToJSON(modelAccounts.Account{
 					ID:             "id",
 					DocumentNumber: "11111111111",
-				}), time.Minute).SetVal("")
+				}), 10*time.Minute).SetVal("")
 			},
 
 			expected: modelAccounts.Account{
@@ -275,7 +275,7 @@ func TestGetByDocument(t *testing.T) {
 				f.redis.ExpectSet("account_document_11111111111", utils.ToJSON(modelAccounts.Account{
 					ID:             "id",
 					DocumentNumber: "11111111111",
-				}), time.Minute).SetErr(fmt.Errorf("any"))
+				}), 10*time.Minute).SetErr(fmt.Errorf("any"))
 
 			},
 			expected: modelAccounts.Account{
@@ -297,7 +297,7 @@ func TestGetByDocument(t *testing.T) {
 				f.redis.ExpectSet("account_document_11111111111", utils.ToJSON(modelAccounts.Account{
 					ID:             "id",
 					DocumentNumber: "11111111111",
-				}), time.Minute).SetErr(fmt.Errorf("any"))
+				}), 10*time.Minute).SetErr(fmt.Errorf("any"))
 
 			},
 			expected: modelAccounts.Account{
