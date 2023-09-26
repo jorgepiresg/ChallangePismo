@@ -12,7 +12,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// Singleton Pattern
 func (s *server) createSqlConn() *sqlx.DB {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -35,6 +34,7 @@ func (s *server) createSqlConn() *sqlx.DB {
 
 	s.runMigrationsUp(db)
 
+	log.Println("database started")
 	return db
 }
 

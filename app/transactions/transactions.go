@@ -6,6 +6,7 @@ import (
 
 	modelTransactions "github.com/jorgepiresg/ChallangePismo/model/transactions"
 	"github.com/jorgepiresg/ChallangePismo/store"
+	"github.com/sirupsen/logrus"
 )
 
 //go:generate mockgen -source=$GOFILE -destination=../../mocks/app/transactions_mock.go -package=mocksApp
@@ -15,15 +16,18 @@ type ITransactions interface {
 
 type Options struct {
 	Store store.Store
+	Log   *logrus.Logger
 }
 
 type transactions struct {
 	store store.Store
+	log   *logrus.Logger
 }
 
 func New(opts Options) ITransactions {
 	return transactions{
 		store: opts.Store,
+		log:   opts.Log,
 	}
 }
 

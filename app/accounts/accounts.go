@@ -7,6 +7,7 @@ import (
 	modelAccounts "github.com/jorgepiresg/ChallangePismo/model/accounts"
 	"github.com/jorgepiresg/ChallangePismo/store"
 	"github.com/jorgepiresg/ChallangePismo/utils"
+	"github.com/sirupsen/logrus"
 )
 
 //go:generate mockgen -source=$GOFILE -destination=../../mocks/app/accounts_mock.go -package=mocksApp
@@ -17,15 +18,18 @@ type IAccounts interface {
 
 type Options struct {
 	Store store.Store
+	Log   *logrus.Logger
 }
 
 type account struct {
 	store store.Store
+	log   *logrus.Logger
 }
 
 func New(opts Options) IAccounts {
 	return account{
 		store: opts.Store,
+		log:   opts.Log,
 	}
 }
 
@@ -47,5 +51,9 @@ func (a account) Create(ctx context.Context, account modelAccounts.Create) (mode
 }
 
 func (a account) GetByAccountID(ctx context.Context, AccountID string) (modelAccounts.Account, error) {
-	return a.store.Accounts.GetByID(ctx, AccountID)
+	account, err := a.store.Accounts.GetByID(ctx, AccountID)
+	if err != nil {
+		return account, fmt.Errorf("account not found")
+	}
+	return account, nil
 }

@@ -1,9 +1,12 @@
 package app
 
 import (
+	"log"
+
 	"github.com/jorgepiresg/ChallangePismo/app/accounts"
 	"github.com/jorgepiresg/ChallangePismo/app/transactions"
 	"github.com/jorgepiresg/ChallangePismo/store"
+	"github.com/sirupsen/logrus"
 )
 
 type App struct {
@@ -13,11 +16,15 @@ type App struct {
 
 type Options struct {
 	Store store.Store
+	Log   *logrus.Logger
 }
 
 func New(opts Options) App {
-	return App{
+	app := App{
 		Accounts:     accounts.New(accounts.Options{Store: opts.Store}),
 		Transactions: transactions.New(transactions.Options{Store: opts.Store}),
 	}
+
+	log.Println("APP Created")
+	return app
 }

@@ -24,7 +24,7 @@ func TestCreate(t *testing.T) {
 		err      error
 		prepare  func(f *fields)
 	}{
-		"success": {
+		"should be able to create a new account": {
 			input: modelAccounts.Create{
 				DocumentNumber: "111.111.111-11",
 			},
@@ -40,21 +40,21 @@ func TestCreate(t *testing.T) {
 				DocumentNumber: "11111111111",
 			},
 		},
-		"error: document number invalid caracters": {
+		"should not be able to create a new account with error document number invalid caracters": {
 			input: modelAccounts.Create{
 				DocumentNumber: "111.111.111-AB",
 			},
 			prepare: func(f *fields) {},
 			err:     fmt.Errorf("document number invalid"),
 		},
-		"error: document number invalid": {
+		"should not be able to create a new account with error document number invalid": {
 			input: modelAccounts.Create{
 				DocumentNumber: "111",
 			},
 			prepare: func(f *fields) {},
 			err:     fmt.Errorf("document number invalid"),
 		},
-		"error: user alredy exist": {
+		"should not be able to create a new account with error user alredy exist": {
 			input: modelAccounts.Create{
 				DocumentNumber: "11111111111",
 			},
@@ -109,19 +109,19 @@ func TestGetByAccountID(t *testing.T) {
 		err      error
 		prepare  func(s *fields)
 	}{
-		"success": {
+		"should be able to get account by id": {
 			input: "id",
 			prepare: func(f *fields) {
 				f.accounts.EXPECT().GetByID(gomock.Any(), "id").Times(1).Return(modelAccounts.Account{ID: "id", DocumentNumber: "11111111111"}, nil)
 			},
 			expected: modelAccounts.Account{ID: "id", DocumentNumber: "11111111111"},
 		},
-		"error": {
+		"should not be able to get account by id with error account not found": {
 			input: "id",
 			prepare: func(f *fields) {
 				f.accounts.EXPECT().GetByID(gomock.Any(), "id").Times(1).Return(modelAccounts.Account{}, fmt.Errorf("any"))
 			},
-			err: fmt.Errorf("any"),
+			err: fmt.Errorf("account not found"),
 		},
 	}
 

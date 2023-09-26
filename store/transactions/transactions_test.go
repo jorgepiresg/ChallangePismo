@@ -8,6 +8,7 @@ import (
 	"time"
 
 	modelTransactions "github.com/jorgepiresg/ChallangePismo/model/transactions"
+	"github.com/sirupsen/logrus"
 	sqlxmock "github.com/zhashkevych/go-sqlxmock"
 )
 
@@ -22,7 +23,7 @@ func TestCreate(t *testing.T) {
 		err      error
 		prepare  func(f *fields)
 	}{
-		"success": {
+		"should be able to insert transaction": {
 			input: modelTransactions.MakeTransaction{
 				AccountID:       "account_id",
 				OperationTypeID: 1,
@@ -41,7 +42,7 @@ func TestCreate(t *testing.T) {
 				Amount:          -10,
 			},
 		},
-		"error scan": {
+		"should not be able to insert transaction with error at scan": {
 			input: modelTransactions.MakeTransaction{
 				AccountID:       "account_id",
 				OperationTypeID: 1,
@@ -54,7 +55,7 @@ func TestCreate(t *testing.T) {
 			},
 			err: fmt.Errorf("missing destination name id in *modelTransactions.Transaction"),
 		},
-		"error": {
+		"should not be able to insert transaction with error at sqlx": {
 			input: modelTransactions.MakeTransaction{
 				AccountID:       "account_id",
 				OperationTypeID: 1,
@@ -75,7 +76,10 @@ func TestCreate(t *testing.T) {
 				t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 			}
 
-			store := New(db)
+			store := New(Options{
+				DB:  db,
+				Log: logrus.New(),
+			})
 
 			tt.prepare(&fields{
 				sqlx: mock,

@@ -26,7 +26,7 @@ func TestMake(t *testing.T) {
 		err     error
 		prepare func(f *fields)
 	}{
-		"success": {
+		"should be able to make a new transaction": {
 			input: modelTransactions.MakeTransaction{
 				AccountID:       "id",
 				OperationTypeID: 1,
@@ -48,21 +48,21 @@ func TestMake(t *testing.T) {
 				}).Times(1).Return(modelTransactions.Transaction{}, nil)
 			},
 		},
-		"error: amount is invalid": {
+		"should not be able to make a new transaction with error amount is invalid": {
 			input: modelTransactions.MakeTransaction{
 				Amount: 10.001,
 			},
 			prepare: func(f *fields) {},
 			err:     fmt.Errorf("amount %v is invalid, use 2 decimals", 10.001),
 		},
-		"error: amount 0 is invalid": {
+		"should not be able to make a new transaction with error amount 0 is invalid": {
 			input: modelTransactions.MakeTransaction{
 				Amount: 0,
 			},
 			prepare: func(f *fields) {},
 			err:     fmt.Errorf("amount 0 is invalid"),
 		},
-		"error: operation type id not found": {
+		"should not be able to make a new transaction with error operation type id not found": {
 			input: modelTransactions.MakeTransaction{
 				Amount: 10,
 			},
@@ -71,7 +71,7 @@ func TestMake(t *testing.T) {
 			},
 			err: fmt.Errorf("operation type id not found"),
 		},
-		"error: account id not found": {
+		"should not be able to make a new transaction with error account id not found": {
 			input: modelTransactions.MakeTransaction{
 				AccountID:       "invalid_id",
 				OperationTypeID: 1,
@@ -88,7 +88,7 @@ func TestMake(t *testing.T) {
 			},
 			err: fmt.Errorf("account id not found"),
 		},
-		"error: fail to make transaction": {
+		"should not be able to make a new transaction with error fail to make transaction": {
 			input: modelTransactions.MakeTransaction{
 				AccountID:       "id",
 				OperationTypeID: 1,

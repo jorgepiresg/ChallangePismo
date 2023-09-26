@@ -10,18 +10,18 @@ func TestValid(t *testing.T) {
 		input Create
 		err   error
 	}{
-		"success": {
+		"should be able to validate document": {
 			input: Create{
 				DocumentNumber: "11111111111",
 			},
 		},
-		"error: len document number invalid": {
+		"should not be able to validate document with error length document input is invalid": {
 			input: Create{
 				DocumentNumber: "1111111111",
 			},
 			err: fmt.Errorf("document number invalid"),
 		},
-		"error: only numbers document number invalid": {
+		"should not be able to validate document with error only numbers input": {
 			input: Create{
 				DocumentNumber: "1111111111A",
 			},

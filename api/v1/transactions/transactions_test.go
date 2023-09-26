@@ -32,20 +32,20 @@ func TestMake(t *testing.T) {
 		err      error
 		prepare  func(f *fields)
 	}{
-		"success: status 201 created": {
+		"should be able to make a new transaction": {
 			input: `{"account_id":"id", "operation_type_id": 1, "amount": 1}`,
 			prepare: func(f *fields) {
 				f.transactions.EXPECT().Make(gomock.Any(), gomock.Any()).Times(1).Return(nil)
 			},
 			expected: 201,
 		},
-		"error: status 400 payload invalid": {
+		"should not be able to make a new transaction with payload invalid": {
 			input: `{"account_id": 123}`,
 			prepare: func(f *fields) {
 			},
 			err: fmt.Errorf("any error"),
 		},
-		"error: status 400 error transaction": {
+		"should not be able to make a new transaction with error in app.transaction": {
 			input: `{"account_id":"id", "operation_type_id": 1, "amount": 1}`,
 			prepare: func(f *fields) {
 				f.transactions.EXPECT().Make(gomock.Any(), gomock.Any()).Times(1).Return(fmt.Errorf("any"))

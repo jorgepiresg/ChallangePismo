@@ -11,6 +11,7 @@ import (
 	"github.com/jorgepiresg/ChallangePismo/utils"
 	"github.com/labstack/echo/v4"
 	emiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/sirupsen/logrus"
 
 	_ "github.com/jorgepiresg/ChallangePismo/docs"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -24,6 +25,7 @@ type server struct {
 	echo   *echo.Echo
 	config config.Config
 	store  store.Store
+	log    *logrus.Logger
 }
 
 func New(cfg config.Config) Server {
@@ -51,10 +53,12 @@ func (s *server) Start() {
 	s.echo.Use(emiddleware.CORS())
 	s.echo.GET("/swagger/*", echoSwagger.WrapHandler)
 
+	s.startLog()
 	s.startStore()
 
 	app := app.New(app.Options{
 		Store: s.store,
+		Log:   s.log,
 	})
 
 	api.New(api.Options{
@@ -82,6 +86,15 @@ func createHTTPErrorHandler() echo.HTTPErrorHandler {
 
 func (s *server) startStore() {
 	s.store = store.New(store.Options{
-		DB: s.createSqlConn(),
+		DB:    s.createSqlConn(),
+		Log:   s.log,
+		Cache: s.startCache(),
 	})
+}
+
+func (s *server) startLog() {
+	s.log = logrus.New()
+	s.log.SetReportCaller(true)
+
+	log.Println("logger started")
 }

@@ -20,6 +20,9 @@ func New() Config {
 			Password:      os.Getenv("POSTGRES_PASSWORD"),
 			Database:      os.Getenv("POSTGRES_DB"),
 		},
+		Cache: Cache{
+			Addr: os.Getenv("REDIS_ADDR"),
+		},
 	}
 
 	return cfg
@@ -28,6 +31,7 @@ func New() Config {
 type Config struct {
 	ServerPort string `json:"port"`
 	DB         DB     `json:"db"`
+	Cache      Cache  `json:"cache"`
 }
 
 type DB struct {
@@ -37,5 +41,9 @@ type DB struct {
 	Port          int    `json:"port"`
 	User          string `json:"user"`
 	Password      string `json:"password"`
-	Database      string
+	Database      string `json:"database"`
+}
+
+type Cache struct {
+	Addr string `json:"addr"`
 }

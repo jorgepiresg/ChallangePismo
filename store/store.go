@@ -1,7 +1,9 @@
 package store
 
 import (
+	"github.com/go-redis/redis/v8"
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 
 	"github.com/jorgepiresg/ChallangePismo/store/accounts"
 	operationsType "github.com/jorgepiresg/ChallangePismo/store/operations_type"
@@ -15,13 +17,32 @@ type Store struct {
 }
 
 type Options struct {
-	DB *sqlx.DB
+	DB    *sqlx.DB
+	Log   *logrus.Logger
+	Cache *redis.Client
 }
 
 func New(opts Options) Store {
+	accountsOpts := accounts.Options{
+		DB:    opts.DB,
+		Log:   opts.Log,
+		Cache: opts.Cache,
+	}
+
+	transactionsOpts := transactions.Options{
+		DB:  opts.DB,
+		Log: opts.Log,
+	}
+
+	operationsTypeOpts := operationsType.Options{
+		DB:    opts.DB,
+		Log:   opts.Log,
+		Cache: opts.Cache,
+	}
+
 	return Store{
-		Accounts:       accounts.New(opts.DB),
-		Transactions:   transactions.New(opts.DB),
-		OperationsType: operationsType.New(opts.DB),
+		Accounts:       accounts.New(accountsOpts),
+		Transactions:   transactions.New(transactionsOpts),
+		OperationsType: operationsType.New(operationsTypeOpts),
 	}
 }

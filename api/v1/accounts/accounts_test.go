@@ -17,6 +17,7 @@ import (
 )
 
 func TestRegister(t *testing.T) {
+
 	t.Run("register group", func(t *testing.T) {
 		Register(echo.New().Group(""), app.App{})
 	})
@@ -39,7 +40,7 @@ func TestCreate(t *testing.T) {
 		err      error
 		prepare  func(f *fields)
 	}{
-		"success: status 201 created": {
+		"should be able to create a new account": {
 			input: `{"document_number":"111.111.111-11"}`,
 			prepare: func(f *fields) {
 				f.accounts.EXPECT().Create(gomock.Any(), gomock.Any()).Times(1).Return(modelAccounts.Account{ID: "id", DocumentNumber: "111111111", CreatedAt: time.Now()}, nil)
@@ -49,13 +50,13 @@ func TestCreate(t *testing.T) {
 				Response: `{"account_id":"id"}`,
 			},
 		},
-		"error: status 400 payload invalid": {
+		"should not be able to create a new account with payload invalid": {
 			input: `{"document_number":111.111.111-11}`,
 			prepare: func(f *fields) {
 			},
 			err: fmt.Errorf("any error"),
 		},
-		"error: status 400 error create account": {
+		"should not be able to create a new account with error in app.create": {
 			input: `{"document_number":"111.111.111-11"}`,
 			prepare: func(f *fields) {
 				f.accounts.EXPECT().Create(gomock.Any(), gomock.Any()).Times(1).Return(modelAccounts.Account{}, fmt.Errorf("any"))

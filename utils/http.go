@@ -1,9 +1,11 @@
 package utils
 
+import "net/http"
+
 func GetHTTPCode(err error) int {
 	e := GetError(err)
 	if e == nil {
-		return 0
+		return http.StatusInternalServerError
 	}
 
 	return e.HTTPCode
