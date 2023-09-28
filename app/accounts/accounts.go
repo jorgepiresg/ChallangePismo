@@ -44,7 +44,7 @@ func (a account) Create(ctx context.Context, account modelAccounts.Create) (mode
 	}
 
 	if _, err := a.store.Accounts.GetByDocument(ctx, account.DocumentNumber); err == nil {
-		return emptyAccount, fmt.Errorf("user alredy exist")
+		return emptyAccount, fmt.Errorf("account alredy exist")
 	}
 
 	return a.store.Accounts.Create(ctx, account)
