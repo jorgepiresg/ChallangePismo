@@ -86,6 +86,7 @@ func (t transactions) discharge(ctx context.Context, data modelTransactions.Tran
 
 		if currentBalance < 0 {
 			transaction.Balance = currentBalance
+			currentBalance = 0
 		}
 
 		err := t.store.Transactions.UpdateBalance(ctx, transaction)
