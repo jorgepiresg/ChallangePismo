@@ -49,3 +49,32 @@ func (mr *MockITransactionsMockRecorder) Create(ctx, create interface{}) *gomock
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockITransactions)(nil).Create), ctx, create)
 }
+
+// GetToDischargeByAccountID mocks base method.
+func (m *MockITransactions) GetToDischargeByAccountID(ctx context.Context, accountID string) ([]modelTransactions.Transaction, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetToDischargeByAccountID", ctx, accountID)
+	ret0, _ := ret[0].([]modelTransactions.Transaction)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetToDischargeByAccountID indicates an expected call of GetToDischargeByAccountID.
+func (mr *MockITransactionsMockRecorder) GetToDischargeByAccountID(ctx, accountID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetToDischargeByAccountID", reflect.TypeOf((*MockITransactions)(nil).GetToDischargeByAccountID), ctx, accountID)
+}
+
+// UpdateBalance mocks base method.
+func (m *MockITransactions) UpdateBalance(ctx context.Context, transaction modelTransactions.Transaction) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateBalance", ctx, transaction)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateBalance indicates an expected call of UpdateBalance.
+func (mr *MockITransactionsMockRecorder) UpdateBalance(ctx, transaction interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateBalance", reflect.TypeOf((*MockITransactions)(nil).UpdateBalance), ctx, transaction)
+}

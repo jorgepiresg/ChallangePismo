@@ -21,8 +21,8 @@ type Options struct {
 
 func New(opts Options) App {
 	app := App{
-		Accounts:     accounts.New(accounts.Options{Store: opts.Store}),
-		Transactions: transactions.New(transactions.Options{Store: opts.Store}),
+		Accounts:     accounts.New(accounts.Options{Store: opts.Store, Log: opts.Log}),
+		Transactions: transactions.New(transactions.Options{Store: opts.Store, Log: opts.Log}),
 	}
 
 	log.Println("APP Created")

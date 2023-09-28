@@ -10,6 +10,7 @@ import (
 	mocksStore "github.com/jorgepiresg/ChallangePismo/mocks/store"
 	modelAccounts "github.com/jorgepiresg/ChallangePismo/model/accounts"
 	"github.com/jorgepiresg/ChallangePismo/store"
+	"github.com/sirupsen/logrus"
 )
 
 func TestCreate(t *testing.T) {
@@ -54,7 +55,7 @@ func TestCreate(t *testing.T) {
 			prepare: func(f *fields) {},
 			err:     fmt.Errorf("document number invalid"),
 		},
-		"should not be able to create a new account with error user alredy exist": {
+		"should not be able to create a new account with error account alredy exist": {
 			input: modelAccounts.Create{
 				DocumentNumber: "11111111111",
 			},
@@ -64,7 +65,7 @@ func TestCreate(t *testing.T) {
 					DocumentNumber: "11111111111",
 				}, nil)
 			},
-			err: fmt.Errorf("user alredy exist"),
+			err: fmt.Errorf("account alredy exist"),
 		},
 	}
 
@@ -83,6 +84,7 @@ func TestCreate(t *testing.T) {
 				Store: store.Store{
 					Accounts: accountsMock,
 				},
+				Log: logrus.New(),
 			})
 
 			res, err := a.Create(context.Background(), tt.input)

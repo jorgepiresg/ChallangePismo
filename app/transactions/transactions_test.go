@@ -3,6 +3,7 @@ package transactions
 import (
 	"context"
 	"fmt"
+	"sync"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -11,6 +12,7 @@ import (
 	modelOperaTionsType "github.com/jorgepiresg/ChallangePismo/model/operations_type"
 	modelTransactions "github.com/jorgepiresg/ChallangePismo/model/transactions"
 	"github.com/jorgepiresg/ChallangePismo/store"
+	"github.com/sirupsen/logrus"
 )
 
 func TestMake(t *testing.T) {
@@ -19,6 +21,7 @@ func TestMake(t *testing.T) {
 		transactions   *mocksStore.MockITransactions
 		accounts       *mocksStore.MockIAccounts
 		operationsType *mocksStore.MockIOperationsType
+		wg             *sync.WaitGroup
 	}
 
 	tests := map[string]struct {
@@ -111,6 +114,160 @@ func TestMake(t *testing.T) {
 			},
 			err: fmt.Errorf("fail to make transaction"),
 		},
+		"should be able to make a new transaction with dischard": {
+			input: modelTransactions.MakeTransaction{
+				AccountID:       "id",
+				OperationTypeID: 4,
+				Amount:          60.00,
+			},
+			prepare: func(f *fields) {
+
+				f.operationsType.EXPECT().GetByID(gomock.Any(), 4).Times(1).Return(modelOperaTionsType.OperationType{
+					OperationTypeID: 4,
+					Description:     "PAGAMENTO",
+					Operation:       1,
+				}, nil)
+
+				f.accounts.EXPECT().GetByID(gomock.Any(), "id").Times(1).Return(modelAccounts.Account{ID: "id"}, nil)
+
+				f.transactions.EXPECT().Create(gomock.Any(), modelTransactions.MakeTransaction{
+					AccountID:       "id",
+					Amount:          60.00,
+					OperationTypeID: 4,
+				}).Times(1).Return(modelTransactions.Transaction{
+					TransactionID:   "transaction_id",
+					AccountID:       "id",
+					Amount:          60.00,
+					OperationTypeID: 4,
+					Balance:         60,
+				}, nil)
+
+				f.wg.Add(4)
+
+				f.transactions.EXPECT().GetToDischargeByAccountID(gomock.Any(), "id").Times(1).Return([]modelTransactions.Transaction{
+					{
+						TransactionID:   "1",
+						AccountID:       "id",
+						OperationTypeID: 1,
+						Amount:          -50,
+						Balance:         -50,
+					},
+					{
+						TransactionID:   "2",
+						AccountID:       "id",
+						OperationTypeID: 1,
+						Amount:          -23.50,
+						Balance:         -23.50,
+					},
+				}, nil).Do(func(arg0, arg1 interface{}) {
+					f.wg.Done()
+				})
+
+				f.transactions.EXPECT().UpdateBalance(gomock.Any(), modelTransactions.Transaction{
+					TransactionID:   "1",
+					AccountID:       "id",
+					OperationTypeID: 1,
+					Amount:          -50,
+					Balance:         0,
+				}).Times(1).Return(nil).Do(func(arg0, arg1 interface{}) {
+					f.wg.Done()
+				})
+
+				f.transactions.EXPECT().UpdateBalance(gomock.Any(), modelTransactions.Transaction{
+					TransactionID:   "2",
+					AccountID:       "id",
+					OperationTypeID: 1,
+					Amount:          -23.50,
+					Balance:         -13.50,
+				}).Times(1).Return(nil).Do(func(arg0, arg1 interface{}) {
+					f.wg.Done()
+				})
+
+				f.transactions.EXPECT().UpdateBalance(gomock.Any(), modelTransactions.Transaction{
+					TransactionID:   "transaction_id",
+					AccountID:       "id",
+					OperationTypeID: 4,
+					Amount:          60,
+					Balance:         0,
+				}).Times(1).Do(func(arg0, arg1 interface{}) {
+					f.wg.Done()
+				})
+
+			},
+		},
+
+		"should be able to make a new transaction with error to get in transactions": {
+			input: modelTransactions.MakeTransaction{
+				AccountID:       "id",
+				OperationTypeID: 4,
+				Amount:          60.00,
+			},
+			prepare: func(f *fields) {
+
+				f.operationsType.EXPECT().GetByID(gomock.Any(), 4).Times(1).Return(modelOperaTionsType.OperationType{
+					OperationTypeID: 4,
+					Description:     "PAGAMENTO",
+					Operation:       1,
+				}, nil)
+
+				f.accounts.EXPECT().GetByID(gomock.Any(), "id").Times(1).Return(modelAccounts.Account{ID: "id"}, nil)
+
+				f.transactions.EXPECT().Create(gomock.Any(), modelTransactions.MakeTransaction{
+					AccountID:       "id",
+					Amount:          60.00,
+					OperationTypeID: 4,
+				}).Times(1).Return(modelTransactions.Transaction{
+					TransactionID:   "transaction_id",
+					AccountID:       "id",
+					Amount:          60.00,
+					OperationTypeID: 4,
+					Balance:         60,
+				}, nil)
+
+				f.wg.Add(1)
+
+				f.transactions.EXPECT().GetToDischargeByAccountID(gomock.Any(), "id").Times(1).Return(nil, fmt.Errorf("any")).Do(func(arg0, arg1 interface{}) {
+					f.wg.Done()
+				})
+
+			},
+		},
+
+		"should be able to make a new transaction with dischard with empty transactions": {
+			input: modelTransactions.MakeTransaction{
+				AccountID:       "id",
+				OperationTypeID: 4,
+				Amount:          60.00,
+			},
+			prepare: func(f *fields) {
+
+				f.operationsType.EXPECT().GetByID(gomock.Any(), 4).Times(1).Return(modelOperaTionsType.OperationType{
+					OperationTypeID: 4,
+					Description:     "PAGAMENTO",
+					Operation:       1,
+				}, nil)
+
+				f.accounts.EXPECT().GetByID(gomock.Any(), "id").Times(1).Return(modelAccounts.Account{ID: "id"}, nil)
+
+				f.transactions.EXPECT().Create(gomock.Any(), modelTransactions.MakeTransaction{
+					AccountID:       "id",
+					Amount:          60.00,
+					OperationTypeID: 4,
+				}).Times(1).Return(modelTransactions.Transaction{
+					TransactionID:   "transaction_id",
+					AccountID:       "id",
+					Amount:          60.00,
+					OperationTypeID: 4,
+					Balance:         60,
+				}, nil)
+
+				f.wg.Add(1)
+
+				f.transactions.EXPECT().GetToDischargeByAccountID(gomock.Any(), "id").Times(1).Return([]modelTransactions.Transaction{}, nil).Do(func(arg0, arg1 interface{}) {
+					f.wg.Done()
+				})
+			},
+		},
 	}
 
 	for key, tt := range tests {
@@ -121,11 +278,13 @@ func TestMake(t *testing.T) {
 			accountsMock := mocksStore.NewMockIAccounts(ctrl)
 			transactionsMock := mocksStore.NewMockITransactions(ctrl)
 			operationsTypeMock := mocksStore.NewMockIOperationsType(ctrl)
+			var wg sync.WaitGroup
 
 			tt.prepare(&fields{
 				accounts:       accountsMock,
 				transactions:   transactionsMock,
 				operationsType: operationsTypeMock,
+				wg:             &wg,
 			})
 
 			a := New(Options{
@@ -134,12 +293,16 @@ func TestMake(t *testing.T) {
 					Transactions:   transactionsMock,
 					OperationsType: operationsTypeMock,
 				},
+				Log: logrus.New(),
 			})
 
 			err := a.Make(context.Background(), tt.input)
 			if err != nil && err.Error() != tt.err.Error() {
 				t.Errorf(`Expected err: "%s" got "%s"`, tt.err, err)
 			}
+
+			wg.Wait()
+
 		})
 	}
 }

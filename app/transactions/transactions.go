@@ -70,6 +70,10 @@ func (t transactions) discharge(ctx context.Context, data modelTransactions.Tran
 		return
 	}
 
+	if len(transactions) == 0 {
+		return
+	}
+
 	currentBalance := data.Amount
 
 	for _, transaction := range transactions {
