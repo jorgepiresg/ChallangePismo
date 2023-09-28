@@ -9,4 +9,5 @@ CREATE TABLE IF NOT EXISTS transactions (
     PRIMARY KEY (transaction_id)
 );
 
+ALTER TABLE transactions ADD COLUMN IF NOT EXISTS balance FLOAT DEFAULT 0 NOT NULL;
 

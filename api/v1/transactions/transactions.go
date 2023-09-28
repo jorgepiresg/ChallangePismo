@@ -35,7 +35,7 @@ func Register(g *echo.Group, app app.App) {
 // @Router       /transactions [post]
 func (h handler) make(c echo.Context) error {
 
-	ctx, cancel := context.WithTimeout(c.Request().Context(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(c.Request().Context(), 5*time.Minute)
 	defer cancel()
 
 	var payload modelTransactions.MakeTransaction

@@ -11,6 +11,8 @@ import (
 //go:generate mockgen -source=$GOFILE -destination=../../mocks/store/transactions_mock.go -package=mocksStore
 type ITransactions interface {
 	Create(ctx context.Context, create modelTransactions.MakeTransaction) (modelTransactions.Transaction, error)
+	GetToDischargeByAccountID(ctx context.Context, accountID string) ([]modelTransactions.Transaction, error)
+	UpdateBalance(ctx context.Context, transaction modelTransactions.Transaction) error
 }
 
 type Options struct {
@@ -34,7 +36,7 @@ func (t transactions) Create(ctx context.Context, create modelTransactions.MakeT
 
 	var transaction modelTransactions.Transaction
 
-	rows, err := t.db.NamedQueryContext(ctx, `INSERT INTO transactions (account_id, operation_type_id, amount) VALUES (:account_id, :operation_type_id, :amount) RETURNING *`, create)
+	rows, err := t.db.NamedQueryContext(ctx, `INSERT INTO transactions (account_id, operation_type_id, amount, balance) VALUES (:account_id, :operation_type_id, :amount, :amount) RETURNING *`, create)
 	if err != nil {
 		t.log.WithField("create", create).Error(err)
 		return transaction, err
@@ -49,4 +51,27 @@ func (t transactions) Create(ctx context.Context, create modelTransactions.MakeT
 	}
 
 	return transaction, nil
+}
+
+func (t transactions) GetToDischargeByAccountID(ctx context.Context, accountID string) ([]modelTransactions.Transaction, error) {
+
+	var transactions []modelTransactions.Transaction
+	err := t.db.SelectContext(ctx, &transactions, `SELECT transaction_id ,account_id, operation_type_id, amount, balance, event_date FROM transactions where 
+	account_id = $1 AND
+	balance < 0 
+	ORDER BY event_date asc;
+	`, accountID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return transactions, nil
+}
+
+func (t transactions) UpdateBalance(ctx context.Context, transaction modelTransactions.Transaction) error {
+
+	_, err := t.db.ExecContext(ctx, `UPDATE transactions SET balance = $1 where transaction_id = $2`, transaction.Balance, transaction.TransactionID)
+
+	return err
 }

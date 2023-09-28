@@ -11,6 +11,7 @@ type Transaction struct {
 	AccountID       string    `db:"account_id"`
 	OperationTypeID int       `db:"operation_type_id"`
 	Amount          float64   `db:"amount"`
+	Balance         float64   `db:"balance"`
 	EventDate       time.Time `db:"event_date"`
 }
 

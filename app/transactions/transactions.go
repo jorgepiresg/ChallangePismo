@@ -48,9 +48,56 @@ func (t transactions) Make(ctx context.Context, data modelTransactions.MakeTrans
 
 	data.SetOperationInAmount(operationType.Operation)
 
-	if _, err := t.store.Transactions.Create(ctx, data); err != nil {
+	res, err := t.store.Transactions.Create(ctx, data)
+	if err != nil {
 		return fmt.Errorf("fail to make transaction")
 	}
 
+	go t.discharge(context.Background(), res)
+
 	return nil
+}
+
+func (t transactions) discharge(ctx context.Context, data modelTransactions.Transaction) {
+
+	if data.Amount <= 0 {
+		return
+	}
+
+	transactions, err := t.store.Transactions.GetToDischargeByAccountID(ctx, data.AccountID)
+	if err != nil {
+		t.log.Error(err)
+		return
+	}
+
+	currentBalance := data.Amount
+
+	for _, transaction := range transactions {
+
+		if currentBalance == 0 {
+			break
+		}
+
+		currentBalance += transaction.Balance
+
+		if currentBalance >= 0 {
+			transaction.Balance = 0
+		}
+
+		if currentBalance < 0 {
+			transaction.Balance = currentBalance
+		}
+
+		err := t.store.Transactions.UpdateBalance(ctx, transaction)
+		if err != nil {
+			t.log.Error(err)
+			return
+		}
+	}
+
+	data.Balance = currentBalance
+
+	if err := t.store.Transactions.UpdateBalance(ctx, data); err != nil {
+		t.log.Error(err)
+	}
 }
