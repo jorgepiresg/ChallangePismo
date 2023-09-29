@@ -33,7 +33,7 @@ func TestMake(t *testing.T) {
 			input: modelTransactions.MakeTransaction{
 				AccountID:       "id",
 				OperationTypeID: 1,
-				Amount:          10.00,
+				Amount:          10.50,
 			},
 			prepare: func(f *fields) {
 				f.operationsType.EXPECT().GetByID(gomock.Any(), 1).Times(1).Return(modelOperaTionsType.OperationType{
@@ -46,24 +46,24 @@ func TestMake(t *testing.T) {
 
 				f.transactions.EXPECT().Create(gomock.Any(), modelTransactions.MakeTransaction{
 					AccountID:       "id",
-					Amount:          -10.00,
+					Amount:          -10.50,
 					OperationTypeID: 1,
 				}).Times(1).Return(modelTransactions.Transaction{}, nil)
 			},
 		},
-		"should not be able to make a new transaction with error amount is invalid": {
+		"should not be able to make a new transaction with error amount negative invalid": {
 			input: modelTransactions.MakeTransaction{
-				Amount: 10.001,
+				Amount: -10,
 			},
 			prepare: func(f *fields) {},
-			err:     fmt.Errorf("amount %v is invalid, use 2 decimals", 10.001),
+			err:     fmt.Errorf("amount invalid"),
 		},
 		"should not be able to make a new transaction with error amount 0 is invalid": {
 			input: modelTransactions.MakeTransaction{
 				Amount: 0,
 			},
 			prepare: func(f *fields) {},
-			err:     fmt.Errorf("amount 0 is invalid"),
+			err:     fmt.Errorf("amount invalid"),
 		},
 		"should not be able to make a new transaction with error operation type id not found": {
 			input: modelTransactions.MakeTransaction{

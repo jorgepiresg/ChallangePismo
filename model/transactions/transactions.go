@@ -2,7 +2,6 @@ package modelTransactions
 
 import (
 	"fmt"
-	"strings"
 	"time"
 )
 
@@ -30,15 +29,8 @@ func (dt *MakeTransaction) SetOperationInAmount(operation int) error {
 
 func (dt *MakeTransaction) ValidateAmount() error {
 
-	if dt.Amount == 0 {
-		return fmt.Errorf("amount 0 is invalid")
-	}
-
-	amountString := fmt.Sprintf("%v", dt.Amount)
-	split := strings.Split(amountString, ".")
-
-	if len(split) > 1 && len(split[1]) != 2 {
-		return fmt.Errorf("amount %v is invalid, use 2 decimals", dt.Amount)
+	if dt.Amount <= 0 {
+		return fmt.Errorf("amount invalid")
 	}
 
 	return nil
