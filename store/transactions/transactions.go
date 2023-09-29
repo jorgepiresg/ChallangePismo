@@ -38,14 +38,14 @@ func (t transactions) Create(ctx context.Context, create modelTransactions.MakeT
 
 	rows, err := t.db.NamedQueryContext(ctx, `INSERT INTO transactions (account_id, operation_type_id, amount, balance) VALUES (:account_id, :operation_type_id, :amount, :amount) RETURNING *`, create)
 	if err != nil {
-		t.log.WithField("create", create).Error(err)
+		t.log.WithField("body", create).Error(err)
 		return transaction, err
 	}
 
 	for rows.Next() {
 		err = rows.StructScan(&transaction)
 		if err != nil {
-			t.log.WithField("create", create).Error(err)
+			t.log.WithField("body", create).Error(err)
 			return transaction, err
 		}
 	}
@@ -63,6 +63,7 @@ func (t transactions) GetToDischargeByAccountID(ctx context.Context, accountID s
 	`, accountID)
 
 	if err != nil {
+		t.log.WithField("account_id", accountID).Error(err)
 		return nil, err
 	}
 
@@ -72,6 +73,10 @@ func (t transactions) GetToDischargeByAccountID(ctx context.Context, accountID s
 func (t transactions) UpdateBalance(ctx context.Context, transaction modelTransactions.Transaction) error {
 
 	_, err := t.db.ExecContext(ctx, `UPDATE transactions SET balance = $1 where transaction_id = $2`, transaction.Balance, transaction.TransactionID)
+	if err != nil {
+		t.log.WithField("body", transaction).Error(err)
+		return err
+	}
 
-	return err
+	return nil
 }

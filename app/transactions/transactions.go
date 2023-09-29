@@ -96,7 +96,6 @@ func (t transactions) discharge(ctx context.Context, data modelTransactions.Tran
 		err := t.store.Transactions.UpdateBalance(ctx, transaction)
 		if err != nil {
 			t.log.Error(err)
-			return
 		}
 	}
 

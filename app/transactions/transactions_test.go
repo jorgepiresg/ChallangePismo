@@ -196,6 +196,143 @@ func TestMake(t *testing.T) {
 			},
 		},
 
+		"should be able to make a new transaction with dischard where current balance is zero": {
+			input: modelTransactions.MakeTransaction{
+				AccountID:       "id",
+				OperationTypeID: 4,
+				Amount:          60.00,
+			},
+			prepare: func(f *fields) {
+
+				f.operationsType.EXPECT().GetByID(gomock.Any(), 4).Times(1).Return(modelOperaTionsType.OperationType{
+					OperationTypeID: 4,
+					Description:     "PAGAMENTO",
+					Operation:       1,
+				}, nil)
+
+				f.accounts.EXPECT().GetByID(gomock.Any(), "id").Times(1).Return(modelAccounts.Account{ID: "id"}, nil)
+
+				f.transactions.EXPECT().Create(gomock.Any(), modelTransactions.MakeTransaction{
+					AccountID:       "id",
+					Amount:          60.00,
+					OperationTypeID: 4,
+				}).Times(1).Return(modelTransactions.Transaction{
+					TransactionID:   "transaction_id",
+					AccountID:       "id",
+					Amount:          60.00,
+					OperationTypeID: 4,
+					Balance:         60,
+				}, nil)
+
+				f.wg.Add(3)
+
+				f.transactions.EXPECT().GetToDischargeByAccountID(gomock.Any(), "id").Times(1).Return([]modelTransactions.Transaction{
+					{
+						TransactionID:   "1",
+						AccountID:       "id",
+						OperationTypeID: 1,
+						Amount:          -60,
+						Balance:         -60,
+					},
+					{
+						TransactionID:   "2",
+						AccountID:       "id",
+						OperationTypeID: 1,
+						Amount:          -23.50,
+						Balance:         -23.50,
+					},
+				}, nil).Do(func(arg0, arg1 interface{}) {
+					f.wg.Done()
+				})
+
+				f.transactions.EXPECT().UpdateBalance(gomock.Any(), modelTransactions.Transaction{
+					TransactionID:   "1",
+					AccountID:       "id",
+					OperationTypeID: 1,
+					Amount:          -60,
+					Balance:         0,
+				}).Times(1).Return(nil).Do(func(arg0, arg1 interface{}) {
+					f.wg.Done()
+				})
+
+				f.transactions.EXPECT().UpdateBalance(gomock.Any(), modelTransactions.Transaction{
+					TransactionID:   "transaction_id",
+					AccountID:       "id",
+					OperationTypeID: 4,
+					Amount:          60,
+					Balance:         0,
+				}).Times(1).Do(func(arg0, arg1 interface{}) {
+					f.wg.Done()
+				})
+
+			},
+		},
+
+		"should be able to make a new transaction with error in dischard": {
+			input: modelTransactions.MakeTransaction{
+				AccountID:       "id",
+				OperationTypeID: 4,
+				Amount:          60.00,
+			},
+			prepare: func(f *fields) {
+
+				f.operationsType.EXPECT().GetByID(gomock.Any(), 4).Times(1).Return(modelOperaTionsType.OperationType{
+					OperationTypeID: 4,
+					Description:     "PAGAMENTO",
+					Operation:       1,
+				}, nil)
+
+				f.accounts.EXPECT().GetByID(gomock.Any(), "id").Times(1).Return(modelAccounts.Account{ID: "id"}, nil)
+
+				f.transactions.EXPECT().Create(gomock.Any(), modelTransactions.MakeTransaction{
+					AccountID:       "id",
+					Amount:          60.00,
+					OperationTypeID: 4,
+				}).Times(1).Return(modelTransactions.Transaction{
+					TransactionID:   "transaction_id",
+					AccountID:       "id",
+					Amount:          60.00,
+					OperationTypeID: 4,
+					Balance:         60,
+				}, nil)
+
+				f.wg.Add(3)
+
+				f.transactions.EXPECT().GetToDischargeByAccountID(gomock.Any(), "id").Times(1).Return([]modelTransactions.Transaction{
+					{
+						TransactionID:   "1",
+						AccountID:       "id",
+						OperationTypeID: 1,
+						Amount:          -60,
+						Balance:         -60,
+					},
+				}, nil).Do(func(arg0, arg1 interface{}) {
+					f.wg.Done()
+				})
+
+				f.transactions.EXPECT().UpdateBalance(gomock.Any(), modelTransactions.Transaction{
+					TransactionID:   "1",
+					AccountID:       "id",
+					OperationTypeID: 1,
+					Amount:          -60,
+					Balance:         0,
+				}).Times(1).Return(fmt.Errorf("any")).Do(func(arg0, arg1 interface{}) {
+					f.wg.Done()
+				})
+
+				f.transactions.EXPECT().UpdateBalance(gomock.Any(), modelTransactions.Transaction{
+					TransactionID:   "transaction_id",
+					AccountID:       "id",
+					OperationTypeID: 4,
+					Amount:          60,
+					Balance:         0,
+				}).Times(1).Return(fmt.Errorf("any")).Do(func(arg0, arg1 interface{}) {
+					f.wg.Done()
+				})
+
+			},
+		},
+
 		"should be able to make a new transaction with error to get in transactions": {
 			input: modelTransactions.MakeTransaction{
 				AccountID:       "id",
